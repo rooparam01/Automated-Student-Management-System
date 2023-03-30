@@ -3,12 +3,19 @@ package com.masai;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.masai.entities.Batch;
 import com.masai.entities.Courses;
+import com.masai.entities.Student;
 import com.masai.exception.CourseException;
 import com.masai.exception.InvalidDetailsException;
+import com.masai.services.BatchService;
+import com.masai.services.BatchServiceImpl;
 import com.masai.services.CourseService;
 import com.masai.services.CourseServiceImpl;
 import com.masai.utility.admin;
@@ -17,11 +24,17 @@ import com.masai.utility.IDGeneration;
 
 
 public class Main {
+	private static void studentSignUpFunctionality(Scanner sc, Map<Integer, Courses> courses,
+			Map<Integer, Batch> batches, Map<Integer, Student> students) {
+		// TODO Auto-generated method stub
+		
+	}
 	
-	public static void adminFunctionality(Scanner sc,Map<Integer,Courses> courses) throws InvalidDetailsException {
+	public static void adminFunctionality(Scanner sc,Map<Integer,Courses> courses, Map<Integer, Batch> batches) throws InvalidDetailsException {
 		adminLogin(sc);
 		
 		CourseService courService = new CourseServiceImpl();
+		BatchService batcServicec = new BatchServiceImpl();
 		int choice = 0;
 		try {
 			do {
@@ -30,8 +43,9 @@ public class Main {
 				System.out.println("Press 3 Search for information about courses");
 				System.out.println("Press 4  Update details of course");
 				System.out.println("Press 5 Create new batch Under Course");
-//				System.out.println("Press 6 to view all transactions");
-				System.out.println("Press 7 to log out");
+				System.out.println("Press 6 Search for information about batches");
+				System.out.println("Press 7 Update details of batch");
+				System.out.println("Press 8 to log out");
 				choice = sc.nextInt();
 
 				switch (choice) {
@@ -51,29 +65,196 @@ public class Main {
 					adminUpdateCourseDetail(sc, courses, courService);
 					break;
 				case 5:
-					//adminCreateBatch(sc,courses, courService);
-
+					String adde = batcServicec.adminCreateBatch(sc,courses,batches,courService);
+					System.out.println(adde);
+					batcServicec.PrintAllBatches(batches);
 					break;
 				case 6:
-					//adminViewAllTransactions(transactions, trnsactionService);
+					adminSearchInfoBatch(sc,batches);
 					break;
 				case 7:
+					adminUpdateBatchDetails(sc,batches,batcServicec);
+					break;
+				case 8:
 					System.out.println("admin has successfully logout");
 					break;
 				default:
 					throw new IllegalArgumentException("Unexpected value: " + choice);
 				}
 
-			} while (choice <= 6);
+			} while (choice <= 7);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+	public static void adminUpdateBatchDetails(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec) {
+		int choice = 0;
+		try {
+			do {
+				System.out.println("Press 1 Change Batch Name");
+				System.out.println("Press 2 Change Batch Strength");
+				System.out.println("Press 0 to Back");
+				choice = sc.nextInt();
 
+				switch (choice) {
+				case 1:
+					adminChangeBatchByname(sc,batches,batcServicec);
+					break;
+				case 2:
+					adminChangeStrengthBatch(sc,batches,batcServicec);
+					break;
+				case 0:
+					//System.out.println("admin has successfully logout");
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + choice);
+				}
 
+			} while (choice!=0);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+	}
+	private static void adminChangeStrengthBatch(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec) {
+		batcServicec.PrintAllBatches(batches);
+		System.out.println("Please Enter Id of the Batch");
+		int id = sc.nextInt();
+		boolean cheak=true;
+		for(Map.Entry<Integer, Batch> mp:batches.entrySet()) {
+			if(mp.getValue().getId()==id) {
+				System.out.println("Please Enter new Strength");
+				int nam=sc.nextInt();
+				mp.getValue().setStrength(nam);
+				cheak=false;
+			}
+		}
+		if(cheak==true) {
+			System.out.println("Invalid Id");
+		}else {
+			System.out.println("Strength Updated Sucessfull");
+		}
+		
+	}
+	private static void adminChangeBatchByname(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec) {
+		batcServicec.PrintAllBatches(batches);
+		System.out.println("Please Enter Id of the Batch");
+		int id = sc.nextInt();
+		boolean cheak=true;
+		for(Map.Entry<Integer, Batch> mp:batches.entrySet()) {
+			if(mp.getValue().getId()==id) {
+				System.out.println("Please Enter new name");
+				String nam=sc.next();
+				mp.getValue().setName(nam);
+				cheak=false;
+			}
+		}
+		if(cheak==true) {
+			System.out.println("Invalid Id");
+		}else {
+			System.out.println("Name Updated Sucessfull");
+		}
+		
+	}
+	public static void adminSearchInfoBatch(Scanner sc, Map<Integer, Batch> batches) {
+		int choice = 0;
+		try {
+			do {
+				System.out.println("Press 1 Search Batch by its Name");
+				System.out.println("Press 2 Search Batch by Course Name");
+				System.out.println("Press 3 Search Batch by Start Date");
+				System.out.println("Press 4 Search Batch by Start Date Between Date Range");
+				System.out.println("Press 0 to Back");
+				choice = sc.nextInt();
+
+				switch (choice) {
+				case 1:
+					adminSearchBatchByname(sc,batches);
+					break;
+				case 2:
+					adminSearchBatchByCourse(sc,batches);
+					break;
+				case 3:
+					adminSearchBatchByStartDateRange(sc,batches);
+					break;
+				case 4:
+					adminSearchBatchByDateRange(sc,batches);
+					break;
+				case 0:
+					//System.out.println("admin has successfully logout");
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + choice);
+				}
+
+			} while (choice!=0);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+		
+	}
+	public static void adminSearchBatchByDateRange(Scanner sc, Map<Integer, Batch> batches) {
+		System.out.println("Please Enter the  Date After Batch Start");
+		String dateStart = sc.next();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		LocalDate startDate = LocalDate.parse(dateStart, formatter);
+		
+		System.out.println("Please Enter the  Date Before Batch Start");
+		String endStart = sc.next();
+		
+		LocalDate endDate = LocalDate.parse(endStart, formatter);
+		boolean cheak=false;
+		for(Map.Entry<Integer, Batch> mp:batches.entrySet()) {
+			if(mp.getValue().getStartDate().isBefore(endDate)&&mp.getValue().getStartDate().isAfter(startDate)) {
+				System.out.println(mp.getValue());
+				cheak=true;
+			}
+		}
+		if(cheak==false) {
+			System.out.println("There is no batch start on this Date");
+		}
+		
+	}
+	public static void adminSearchBatchByStartDateRange(Scanner sc, Map<Integer, Batch> batches) {
+		System.out.println("Please Enter the Date for Search batch");
+		String dateStart = sc.next();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		LocalDate startDate = LocalDate.parse(dateStart, formatter);
+		boolean cheak=false;
+		for(Map.Entry<Integer, Batch> mp:batches.entrySet()) {
+			if(mp.getValue().getStartDate().isEqual(startDate)) {
+				System.out.println(mp.getValue());
+				cheak=true;
+			}
+		}
+		if(cheak==false) {
+			System.out.println("There is no batch start on this Date");
+		}
+		
+	}
+	public static void adminSearchBatchByCourse(Scanner sc, Map<Integer, Batch> batches) {
+		System.out.println("Please Enter the Course Name");
+		String nameSearched = sc.next();
+		for(Map.Entry<Integer, Batch> mp:batches.entrySet()) {
+			if(nameSearched.toLowerCase().equals(mp.getValue().getCourse().getName())) {
+				System.out.println(mp.getValue());
+			}
+		}
+		
+	}
+	public static void adminSearchBatchByname(Scanner sc, Map<Integer, Batch> batches) {
+		System.out.println("Please Enter the Batch Name");
+		String nameSearched = sc.next();
+		for(Map.Entry<Integer, Batch> mp:batches.entrySet()) {
+			if(nameSearched.toLowerCase().equals(mp.getValue().getName().toLowerCase())) {
+				System.out.println(mp.getValue());
+			}
+		}
+		
+	}
 	public static void adminUpdateCourseDetail(Scanner sc, Map<Integer, Courses> courses, CourseService courService) {
-		// TODO Auto-generated method stub
+		
 		System.out.println("Please Enter the id of Course");
 		int idCourse = sc.nextInt();
 		boolean cheak = false;
@@ -257,6 +438,8 @@ public class Main {
 
 	public static void main(String[] args) throws ClassNotFoundException, IOException, InvalidDetailsException {
 		Map<Integer,Courses> courses = FileExist.courseFile();
+		Map<Integer,Batch> batches = FileExist.batchFile();
+		Map<Integer,Student> students = FileExist.studentFile();
 		//System.out.println(courses);
 		
 		Scanner sc = new Scanner(System.in);
@@ -265,16 +448,15 @@ public class Main {
 		try {
 			int preference=0;
 			do {
-				System.out.println("Please enter your preference, " + " '1' --> Admin login ");
+				System.out.println("Please enter your preference, " + " '1' --> Admin login "+" '2' --> Student SignUp "+" '3' --> Student Login "+" '0' --> Existed from the system");
 				preference=sc.nextInt();
 				switch (preference) {
 				case 1:
-					adminFunctionality(sc, courses);
+					adminFunctionality(sc, courses,batches);
 					break;
 				case 2:
-					//customerFunctionality(sc, customers, products, transactions);
+					studentSignUpFunctionality(sc,courses,batches,students);
 					break;
-
 				case 3:
 					//customerSignup(sc, customers);
 					break;
@@ -299,6 +481,12 @@ public class Main {
 				ObjectOutputStream poos = new ObjectOutputStream(new FileOutputStream("Courses.ser"));
 				poos.writeObject(courses);
 				System.out.println("Products Added to list finaly");
+				ObjectOutputStream boos = new ObjectOutputStream(new FileOutputStream("Batch.ser"));
+				boos.writeObject(batches);
+				
+				ObjectOutputStream anna = new ObjectOutputStream(new FileOutputStream("Students.ser"));
+				anna.writeObject(students);
+				
 			
 			} catch (Exception e) {
 				// TODO: handle exception
@@ -309,5 +497,6 @@ public class Main {
 		
 		
 	}
+	
 	
 }
