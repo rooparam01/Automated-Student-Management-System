@@ -2,6 +2,7 @@ package com.masai.utility;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -9,7 +10,9 @@ import java.io.ObjectOutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.masai.entities.Batch;
 import com.masai.entities.Courses;
+import com.masai.entities.Student;
 
 public class FileExist {
 
@@ -34,5 +37,44 @@ public class FileExist {
 			return cFile;
 		}
 	}
+
 	
-}
+	public static Map<Integer, Batch> batchFile() throws IOException, ClassNotFoundException {
+	Map<Integer,Batch> mFile = null;
+		
+		File i = new File("Batch.ser");
+		if(i.exists()) {
+			ObjectInputStream ooos = new ObjectInputStream(new FileInputStream(i));
+			mFile= (Map<Integer, Batch>) ooos.readObject();
+			return mFile;
+		}else {
+			i.createNewFile();
+			mFile = new LinkedHashMap<>();
+			ObjectOutputStream oiis = new ObjectOutputStream(new FileOutputStream(i));
+			oiis.writeObject(mFile);
+			return mFile;
+			
+		}
+	}
+
+
+	public static Map<Integer, Student> studentFile() throws FileNotFoundException, IOException, ClassNotFoundException {
+		
+		Map<Integer,Student> mFile = null;
+		File i = new File("Students.ser");
+		if(i.exists()) {
+			ObjectInputStream ooos = new ObjectInputStream(new FileInputStream(i));
+			mFile= (Map<Integer, Student>) ooos.readObject();
+			return mFile;
+		}else {
+			i.createNewFile();
+			mFile = new LinkedHashMap<>();
+			ObjectOutputStream oiis = new ObjectOutputStream(new FileOutputStream(i));
+			oiis.writeObject(mFile);
+			return mFile;
+			
+		}
+	}
+	}
+	
+
