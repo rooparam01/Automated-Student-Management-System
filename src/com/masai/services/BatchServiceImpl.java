@@ -40,7 +40,7 @@ public class BatchServiceImpl implements BatchService {
 		//System.out.println("Please Enter the Date of End(DD/MM/YYYY) Batch");
 		//String endInput=sc.next();
 		LocalDate endDate = startDate.plusMonths(courseBatch.getDuration());
-		Batch newBatch = new Batch(name,strength,courseBatch,startDate,endDate);
+		Batch newBatch = new Batch(name,strength,cCode,startDate,endDate);
 		batches.put(newBatch.getId(), newBatch);
 		return "Batch Created Succesfully";
 	}

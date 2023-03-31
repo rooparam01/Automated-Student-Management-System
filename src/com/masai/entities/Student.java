@@ -3,22 +3,25 @@ package com.masai.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.masai.utility.IDGeneration;
+
 public class Student implements Serializable {
 //first name, last name, address, mobile number, email, and password should be taken.
 	private String firstName;
 	private String lastName;
 	private String address;
-	private int mobileNumber;
+	private long mobileNumber;
 	private String email;
 	private String password;
 	private int id;
 	private int batchid;
-	public Student(String firstName, String lastName, String address, int mobileNumber, String email, String password) {
+	public Student(String firstName, String lastName, String address, long mNumber, String email, String password) {
 		super();
+		this.id=IDGeneration.generateId();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.address = address;
-		this.mobileNumber = mobileNumber;
+		this.mobileNumber = mNumber;
 		this.email = email;
 		this.password = password;
 	}
@@ -31,7 +34,7 @@ public class Student implements Serializable {
 	public String getAddress() {
 		return address;
 	}
-	public int getMobileNumber() {
+	public long getMobileNumber() {
 		return mobileNumber;
 	}
 	public String getEmail() {
@@ -55,7 +58,7 @@ public class Student implements Serializable {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	public void setMobileNumber(int mobileNumber) {
+	public void setMobileNumber(long mobileNumber) {
 		this.mobileNumber = mobileNumber;
 	}
 	public void setEmail(String email) {
