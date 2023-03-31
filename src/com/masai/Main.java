@@ -18,18 +18,225 @@ import com.masai.services.BatchService;
 import com.masai.services.BatchServiceImpl;
 import com.masai.services.CourseService;
 import com.masai.services.CourseServiceImpl;
+import com.masai.services.StudentService;
+import com.masai.services.StudentServiceImpl;
 import com.masai.utility.admin;
 import com.masai.utility.FileExist;
 import com.masai.utility.IDGeneration;
 
 
 public class Main {
-	private static void studentSignUpFunctionality(Scanner sc, Map<Integer, Courses> courses,
-			Map<Integer, Batch> batches, Map<Integer, Student> students) {
-		// TODO Auto-generated method stub
+
+	private static void studentLogInFunctionallity(Scanner sc, Map<Integer, Courses> courses,
+			Map<Integer, Batch> batches, Map<Integer, Student> students) throws InvalidDetailsException {
+		int loginedStudentid=studentSignIn(sc,students);
+		System.out.println(loginedStudentid);
+		int choice = 0;
+		try {
+			do {
+				System.out.println("Press 1 Update Personal Detail");
+				System.out.println("Press 2 View Students Details");
+				System.out.println("Press 3 Change Password");
+				System.out.println("Press 4 Available course List");
+				System.out.println("Press 5 Available All Batch List");
+				System.out.println("Press 6 Student Enroll for Batch Course");
+				System.out.println("Press 0 to LogOut");
+				choice = sc.nextInt();
+
+				switch (choice) {
+				case 1:
+					StudentChangePersonalDetails(sc,loginedStudentid,batches,courses,students);
+					break;
+				case 2:
+					showStudentDetails(sc,loginedStudentid,batches,courses,students);
+					break;
+				case 3:
+					changeStudentPassword(sc,loginedStudentid,batches,courses,students);
+					break;
+				case 4:
+					studentSeeAllAvailbleCourses(sc,loginedStudentid,batches,courses,students);
+					break;
+				case 5:
+					studentSeeAllAvailbleBatches(sc,loginedStudentid,batches,courses,students);
+					break;
+				case 6:
+					studentEnrollForBatches(sc,loginedStudentid,batches,courses,students);
+					break;
+				case 0:
+					//System.out.println("admin has successfully logout");
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + choice);
+				}
+
+			} while (choice!=0);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 		
 	}
-	
+	private static void studentEnrollForBatches(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students) {
+		studentSeeAllAvailbleBatches(sc,loginedStudentid,batches,courses,students);
+		System.out.println("Please Enter Batch id For Enroll in course");
+		int batchid = sc.nextInt();
+		boolean flag=true;
+		for(Map.Entry<Integer, Student> mp:students.entrySet()) {
+			if(mp.getValue().getId()==loginedStudentid) {
+				flag=false;
+				if(mp.getValue().getBatchid()==0) {
+					mp.getValue().setBatchid(batchid);
+				}else {
+				System.out.println("You have Already Enrolled for another course");
+				}
+			}
+		}
+		if(flag==false) {
+			System.out.println("Enroll for desired course sucessfully");
+		}else {
+			System.out.println("Invalid Course Selection");
+		}
+		
+	}
+	private static void studentSeeAllAvailbleBatches(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students) {
+		boolean flag=true;
+		for(Map.Entry<Integer, Courses> course:courses.entrySet()) {
+			for(Map.Entry<Integer, Batch> batch:batches.entrySet()) {
+				if(course.getValue().getId()==batch.getValue().getCourseId()) {
+					System.out.println("Course:-"+course.getValue().getName()+"  id:-"+course.getValue().getId()+"  BatchName:-"+batch.getValue().getName()+"  BatchStrength:-"+batch.getValue().getStrength()+"  BatchStartDate:-"+batch.getValue().getStartDate()+"  BatchEndDate:-"+batch.getValue().getEndDate());
+					flag=false;
+				}
+			}
+		}
+		if(flag==true) {
+			System.out.println("There is no Batch Available");
+		}
+		
+	}
+	private static void studentSeeAllAvailbleCourses(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students) {
+		for(Map.Entry<Integer, Courses> mp:courses.entrySet()) {
+			System.out.println(mp.getValue());
+		}
+	}
+	private static void changeStudentPassword(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students) {
+		System.out.println("Enter the current Password");
+		String oldPass = sc.next();
+		for(Map.Entry<Integer, Student> mp:students.entrySet()) {
+			if(mp.getValue().getId()==loginedStudentid) {
+				if(mp.getValue().getPassword().equals(oldPass)) {
+					System.out.println("Please Enter new Password");
+					String newPass = sc.next();
+					mp.getValue().setPassword(newPass);
+					System.out.println("Your Password is Updated");
+				}else {
+					System.out.println("Your Password is not correct");
+				}
+			}
+		}
+		
+	}
+	private static void showStudentDetails(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students) {
+		for(Map.Entry<Integer, Student> mp:students.entrySet()) {
+			if(mp.getValue().getId()==loginedStudentid) {
+				System.out.println(mp.getValue());
+			}
+		}
+		System.out.println("Mobile Number Updated sucessfully");
+		
+	}
+	private static void StudentChangePersonalDetails(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students) {
+		int choice = 0;
+		try {
+			do {
+				System.out.println("Press 1 Update First Name");
+				System.out.println("Press 2 Update Last Name");
+				System.out.println("Press 3 Update Mobile Number");
+				System.out.println("Press 0 to Back");
+				choice = sc.nextInt();
+
+				switch (choice) {
+				case 1:
+					studentChangeFirstName(sc,loginedStudentid,batches,courses,students);
+					break;
+				case 2:
+					studentChangeLastName(sc,loginedStudentid,batches,courses,students);
+					break;
+				case 3:
+					studentChangeMobileNumber(sc,loginedStudentid,batches,courses,students);
+					break;
+				case 0:
+					//System.out.println("admin has successfully logout");
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + choice);
+				}
+
+			} while (choice!=0);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+	}
+	private static void studentChangeMobileNumber(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students) {
+		System.out.println("Enter new Mobile Number");
+		long mNumber = sc.nextLong();
+		for(Map.Entry<Integer, Student> mp:students.entrySet()) {
+			if(mp.getValue().getId()==loginedStudentid) {
+				mp.getValue().setMobileNumber(mNumber);
+			}
+		}
+		System.out.println("Mobile Number Updated sucessfully");
+		
+	}
+	private static void studentChangeLastName(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students) {
+		System.out.println("Enter Last Name");
+		String fName = sc.next();
+		for(Map.Entry<Integer, Student> mp:students.entrySet()) {
+			if(mp.getValue().getId()==loginedStudentid) {
+				mp.getValue().setLastName(fName);;
+			}
+		}
+		System.out.println("Last name Updated sucessfully");
+		
+	}
+	private static void studentChangeFirstName(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students) {
+		System.out.println("Enter First Name");
+		String fName = sc.next();
+		for(Map.Entry<Integer, Student> mp:students.entrySet()) {
+			if(mp.getValue().getId()==loginedStudentid) {
+				mp.getValue().setFirstName(fName);
+			}
+		}
+		System.out.println("First name Updated sucessfully");
+	}
+	private static int studentSignIn(Scanner sc, Map<Integer, Student> students) throws InvalidDetailsException {
+		System.out.println("Please enter Your email");
+		String email = sc.next();
+		System.out.println("Please enter Your password");
+		String password = sc.next();
+		boolean flag=false;
+		int loginStudentid=0;
+		for(Map.Entry<Integer,Student> mp:students.entrySet()) {
+			if(mp.getValue().getEmail().equals(email)&&mp.getValue().getPassword().equals(password)) {
+				flag=true;
+				loginStudentid=mp.getValue().getId();
+			}
+		}
+		if(flag==false) {
+			throw new InvalidDetailsException("Invalid Login Credentials");
+		}else {
+			System.out.println("Login Sucessfull");
+		}
+		return loginStudentid;
+	}
 	public static void adminFunctionality(Scanner sc,Map<Integer,Courses> courses, Map<Integer, Batch> batches) throws InvalidDetailsException {
 		adminLogin(sc);
 		
@@ -70,7 +277,7 @@ public class Main {
 					batcServicec.PrintAllBatches(batches);
 					break;
 				case 6:
-					adminSearchInfoBatch(sc,batches);
+					adminSearchInfoBatch(sc,batches,courses);
 					break;
 				case 7:
 					adminUpdateBatchDetails(sc,batches,batcServicec);
@@ -156,7 +363,7 @@ public class Main {
 		}
 		
 	}
-	public static void adminSearchInfoBatch(Scanner sc, Map<Integer, Batch> batches) {
+	public static void adminSearchInfoBatch(Scanner sc, Map<Integer, Batch> batches, Map<Integer, Courses> courses) {
 		int choice = 0;
 		try {
 			do {
@@ -172,7 +379,7 @@ public class Main {
 					adminSearchBatchByname(sc,batches);
 					break;
 				case 2:
-					adminSearchBatchByCourse(sc,batches);
+					adminSearchBatchByCourse(sc,batches,courses);
 					break;
 				case 3:
 					adminSearchBatchByStartDateRange(sc,batches);
@@ -233,12 +440,22 @@ public class Main {
 		}
 		
 	}
-	public static void adminSearchBatchByCourse(Scanner sc, Map<Integer, Batch> batches) {
+	public static void adminSearchBatchByCourse(Scanner sc, Map<Integer, Batch> batches, Map<Integer, Courses> courses) {
 		System.out.println("Please Enter the Course Name");
 		String nameSearched = sc.next();
-		for(Map.Entry<Integer, Batch> mp:batches.entrySet()) {
-			if(nameSearched.toLowerCase().equals(mp.getValue().getCourse().getName())) {
-				System.out.println(mp.getValue());
+		int courseid = 0;
+		for(Map.Entry<Integer, Courses> mp:courses.entrySet()) {
+			if(nameSearched.toLowerCase().equals(mp.getValue().getName())) {
+				courseid=mp.getValue().getId();
+			}
+		}
+		if(courseid==0) {
+			System.out.println("There is no batch by this course");
+		}else {
+			for(Map.Entry<Integer, Batch> mv:batches.entrySet()) {
+				if(mv.getValue().getCourseId()==courseid) {
+					System.out.println(mv.getValue());
+				}
 			}
 		}
 		
@@ -435,30 +652,56 @@ public class Main {
 			throw new InvalidDetailsException("Invalid Admin Credentials");
 		}
 	}
+	private static void studentForgotPassword(Scanner sc, Map<Integer, Courses> courses, Map<Integer, Batch> batches,
+			Map<Integer, Student> students) {
+		System.out.println("Enter Your Email id");
+		String email = sc.next();
+		System.out.println("Enter Your Mobile Number");
+		long mNumber = sc.nextLong();
+		boolean flag=false;
+		for(Map.Entry<Integer, Student> mp:students.entrySet()) {
+			
+			if(mp.getValue().getEmail().equals(email)&&mp.getValue().getMobileNumber()==mNumber) {
+				flag=true;
+				System.out.println("Please Enter Your new Password");
+				String pass=sc.next();
+				mp.getValue().setPassword(pass);
+				System.out.println("Password Updated Sucessfully");
+				}
+		}
+		if(flag==false) {
+			System.out.println("email or mobile not matched");
+		}
+		
+	}
+	
 
 	public static void main(String[] args) throws ClassNotFoundException, IOException, InvalidDetailsException {
 		Map<Integer,Courses> courses = FileExist.courseFile();
 		Map<Integer,Batch> batches = FileExist.batchFile();
 		Map<Integer,Student> students = FileExist.studentFile();
 		//System.out.println(courses);
-		
+		StudentService stdService = new StudentServiceImpl();
 		Scanner sc = new Scanner(System.in);
 
 		System.out.println("Welcome , in Student Registration System");
 		try {
 			int preference=0;
 			do {
-				System.out.println("Please enter your preference, " + " '1' --> Admin login "+" '2' --> Student SignUp "+" '3' --> Student Login "+" '0' --> Existed from the system");
+				System.out.println("Please enter your preference, " + " '1' --> Admin login "+" '2' --> Student SignUp "+" '3' --> Student Login "+" '4' --> Student Forgot Password "+" '0' --> Existed from the system");
 				preference=sc.nextInt();
 				switch (preference) {
 				case 1:
 					adminFunctionality(sc, courses,batches);
 					break;
 				case 2:
-					studentSignUpFunctionality(sc,courses,batches,students);
+					stdService.studentSignUpFunctionality(sc,courses,batches,students);
 					break;
 				case 3:
-					//customerSignup(sc, customers);
+					studentLogInFunctionallity(sc,courses,batches,students);
+					break;
+				case 4:
+					studentForgotPassword(sc,courses,batches,students);
 					break;
 
 				case 0:
@@ -480,23 +723,18 @@ public class Main {
 			try {
 				ObjectOutputStream poos = new ObjectOutputStream(new FileOutputStream("Courses.ser"));
 				poos.writeObject(courses);
-				System.out.println("Products Added to list finaly");
+				
 				ObjectOutputStream boos = new ObjectOutputStream(new FileOutputStream("Batch.ser"));
 				boos.writeObject(batches);
 				
 				ObjectOutputStream anna = new ObjectOutputStream(new FileOutputStream("Students.ser"));
 				anna.writeObject(students);
-				
+				System.out.println("Serialized......................");
 			
 			} catch (Exception e) {
 				// TODO: handle exception
 				System.out.println(e.getMessage());
 			}
-		}
-		
-		
-		
+		}	
 	}
-	
-	
 }
