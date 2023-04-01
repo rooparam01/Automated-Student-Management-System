@@ -10,15 +10,16 @@ public class CourseServiceImpl implements CourseService {
 
 	@Override
 	public String addCoures(Courses cor, Map<Integer, Courses> courses) {
-		// TODO Auto-generated method stub
+		
 		courses.put(cor.getId(), cor);
 
 		return "Course added successfully";
+		
 	}
 
 	@Override
 	public void viewAllCourses(Map<Integer, Courses> courses) throws CourseException {
-		// TODO Auto-generated method stub
+		System.out.println("---------------------------------------");
 		if (courses != null && courses.size() > 0) {
 			for (Map.Entry<Integer, Courses> me : courses.entrySet()) {
 				System.out.println(me.getValue());
@@ -27,7 +28,7 @@ public class CourseServiceImpl implements CourseService {
 		} else {
 			throw new CourseException("Course List is empty");
 		}
-		
+		System.out.println("---------------------------------------");
 	}
 
 	@Override
