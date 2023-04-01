@@ -30,7 +30,6 @@ public class Main {
 	private static void studentLogInFunctionallity(Scanner sc, Map<Integer, Courses> courses,
 			Map<Integer, Batch> batches, Map<Integer, Student> students) throws InvalidDetailsException {
 		int loginedStudentid=studentSignIn(sc,students);
-		System.out.println(loginedStudentid);
 		int choice = 0;
 		try {
 			do {
@@ -80,23 +79,35 @@ public class Main {
 		studentSeeAllAvailbleBatches(sc,loginedStudentid,batches,courses,students);
 		System.out.println("Please Enter Batch id For Enroll in course");
 		int batchid = sc.nextInt();
+		boolean flag1=true;
+		for(Map.Entry<Integer,Batch> bt:batches.entrySet()) {
+			if(bt.getValue().getId()==batchid) {
+				flag1=false;
+				int count=bt.getValue().getStrength();
+				count--;
+				bt.getValue().setStrength(count);
+			}
+		}
 		boolean flag=true;
 		for(Map.Entry<Integer, Student> mp:students.entrySet()) {
 			if(mp.getValue().getId()==loginedStudentid) {
-				flag=false;
-				if(mp.getValue().getBatchid()==0) {
+				
+				if(mp.getValue().getBatchid()==0&&flag1==false) {
+					flag=false;
 					mp.getValue().setBatchid(batchid);
 				}else {
-				System.out.println("You have Already Enrolled for another course");
+					if(mp.getValue().getBatchid()==0) {
+						System.out.println("Invalid course Selection");
+					}else {
+						System.out.println("You have Already Enrolled for another course");
+					}
 				}
 			}
 		}
-		if(flag==false) {
-			System.out.println("Enroll for desired course sucessfully");
-		}else {
-			System.out.println("Invalid Course Selection");
-		}
 		
+		if(flag==false&&flag1==false) {
+			System.out.println("Enroll for desired course successfully");
+		}
 	}
 	private static void studentSeeAllAvailbleBatches(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
 			Map<Integer, Courses> courses, Map<Integer, Student> students) {
@@ -104,7 +115,7 @@ public class Main {
 		for(Map.Entry<Integer, Courses> course:courses.entrySet()) {
 			for(Map.Entry<Integer, Batch> batch:batches.entrySet()) {
 				if(course.getValue().getId()==batch.getValue().getCourseId()) {
-					System.out.println("Course:-"+course.getValue().getName()+"  id:-"+course.getValue().getId()+"  BatchName:-"+batch.getValue().getName()+"  BatchStrength:-"+batch.getValue().getStrength()+"  BatchStartDate:-"+batch.getValue().getStartDate()+"  BatchEndDate:-"+batch.getValue().getEndDate());
+					System.out.println("Course:-"+course.getValue().getName()+"  id:-"+batch.getValue().getId()+"  BatchName:-"+batch.getValue().getName()+"  BatchStrength:-"+batch.getValue().getStrength()+"  BatchStartDate:-"+batch.getValue().getStartDate()+"  BatchEndDate:-"+batch.getValue().getEndDate());
 					flag=false;
 				}
 			}
@@ -145,7 +156,7 @@ public class Main {
 				System.out.println(mp.getValue());
 			}
 		}
-		System.out.println("Mobile Number Updated sucessfully");
+		System.out.println("Mobile Number Updated successfully");
 		
 	}
 	private static void StudentChangePersonalDetails(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
@@ -191,7 +202,7 @@ public class Main {
 				mp.getValue().setMobileNumber(mNumber);
 			}
 		}
-		System.out.println("Mobile Number Updated sucessfully");
+		System.out.println("Mobile Number Updated successfully");
 		
 	}
 	private static void studentChangeLastName(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
@@ -203,7 +214,7 @@ public class Main {
 				mp.getValue().setLastName(fName);;
 			}
 		}
-		System.out.println("Last name Updated sucessfully");
+		System.out.println("Last name Updated successfully");
 		
 	}
 	private static void studentChangeFirstName(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
@@ -215,7 +226,7 @@ public class Main {
 				mp.getValue().setFirstName(fName);
 			}
 		}
-		System.out.println("First name Updated sucessfully");
+		System.out.println("First name Updated successfully");
 	}
 	private static int studentSignIn(Scanner sc, Map<Integer, Student> students) throws InvalidDetailsException {
 		System.out.println("Please enter Your email");
@@ -233,15 +244,16 @@ public class Main {
 		if(flag==false) {
 			throw new InvalidDetailsException("Invalid Login Credentials");
 		}else {
-			System.out.println("Login Sucessfull");
+			System.out.println("Login Successfull");
 		}
 		return loginStudentid;
 	}
-	public static void adminFunctionality(Scanner sc,Map<Integer,Courses> courses, Map<Integer, Batch> batches) throws InvalidDetailsException {
+	private static void adminFunctionality(Scanner sc,Map<Integer,Courses> courses, Map<Integer, Batch> batches, Map<Integer, Student> students) throws InvalidDetailsException {
 		adminLogin(sc);
 		
 		CourseService courService = new CourseServiceImpl();
 		BatchService batcServicec = new BatchServiceImpl();
+		StudentService stdService = new StudentServiceImpl();
 		int choice = 0;
 		try {
 			do {
@@ -252,7 +264,9 @@ public class Main {
 				System.out.println("Press 5 Create new batch Under Course");
 				System.out.println("Press 6 Search for information about batches");
 				System.out.println("Press 7 Update details of batch");
-				System.out.println("Press 8 to log out");
+				System.out.println("Press 8 View students Batchwise and Individual");
+				System.out.println("Press 9 Consolited Report");
+				System.out.println("Press 0 to log out");
 				choice = sc.nextInt();
 
 				switch (choice) {
@@ -283,21 +297,166 @@ public class Main {
 					adminUpdateBatchDetails(sc,batches,batcServicec);
 					break;
 				case 8:
+					adminSeeStudentDetail(sc,batches,batcServicec,stdService,students,courses);
+					break;
+				case 9:
+					consolitedReports(sc,batches,batcServicec,stdService,students,courses);
+					break;
+				case 0:
 					System.out.println("admin has successfully logout");
 					break;
 				default:
 					throw new IllegalArgumentException("Unexpected value: " + choice);
 				}
 
-			} while (choice <= 7);
+			} while (choice!=0);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
-	public static void adminUpdateBatchDetails(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec) {
+
+	private static void consolitedReports(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec,
+			StudentService stdService, Map<Integer, Student> students, Map<Integer, Courses> courses) {
 		int choice = 0;
 		try {
 			do {
+				System.out.println("Press 1 batch-wise Consolited Report the total students in every batch");
+				System.out.println("Press 2 Consolidate Report Course-wise Student List");
+				System.out.println("Press 3 Consolidate Report Total Batch in Course");
+				System.out.println("Press 0 to Back");
+				choice = sc.nextInt();
+
+				switch (choice) {
+				case 1:
+					consolitedReportBatchWiseStudent(sc,batches,batcServicec,stdService,students,courses);
+					break;
+				case 2:
+
+					consolitedReportCourseWiseStudent(sc,batches,batcServicec,stdService,students,courses);
+					break;
+				case 3:
+					consolitedReportBatchInCourse(sc,batches,batcServicec,stdService,students,courses);
+					break;
+				case 0:
+					//System.out.println("admin has successfully logout");
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + choice);
+				}
+
+			} while (choice!=0);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+	}
+	private static void consolitedReportBatchInCourse(Scanner sc, Map<Integer, Batch> batches,
+			BatchService batcServicec, StudentService stdService, Map<Integer, Student> students,
+			Map<Integer, Courses> courses) {
+		System.out.println("---------------------------------------");
+		for(Map.Entry<Integer, Courses> crt:courses.entrySet()) {
+			Courses currCourse = crt.getValue();
+			System.out.println("****"+currCourse.getName()+"****");
+			for(Map.Entry<Integer, Batch> bt:batches.entrySet()) {
+				if(bt.getValue().getCourseId()==currCourse.getId()) {
+					System.out.println(bt.getValue());
+				}
+			}
+		}
+		System.out.println("---------------------------------------");
+		
+	}
+	private static void consolitedReportCourseWiseStudent(Scanner sc, Map<Integer, Batch> batches,
+			BatchService batcServicec, StudentService stdService, Map<Integer, Student> students,
+			Map<Integer, Courses> courses) {
+		System.out.println("---------------------------------------");
+		for(Map.Entry<Integer, Courses> crt:courses.entrySet()) {
+			Courses currCourse = crt.getValue();
+			System.out.println("****"+currCourse.getName()+"****");
+			
+			for(Map.Entry<Integer, Batch> bt:batches.entrySet()) {
+			for(Map.Entry<Integer, Student> st: students.entrySet()) {
+				if(st.getValue().getBatchid()==bt.getValue().getId()) {
+					if(bt.getValue().getCourseId()==currCourse.getId()) {
+						System.out.println(st.getValue());
+					}
+				}
+			}
+			
+			}
+			
+		}
+		System.out.println("---------------------------------------");
+		
+	}
+	private static void consolitedReportBatchWiseStudent(Scanner sc, Map<Integer, Batch> batches,
+			BatchService batcServicec, StudentService stdService, Map<Integer, Student> students,
+			Map<Integer, Courses> courses) {
+		System.out.println("---------------------------------------");
+		for(Map.Entry<Integer, Batch> bt:batches.entrySet()) {
+			Batch currBatch = bt.getValue();
+		System.out.println("****"+currBatch.getName()+"****");
+		for(Map.Entry<Integer, Student> st: students.entrySet()) {
+			if(st.getValue().getBatchid()==currBatch.getId()) {
+				System.out.println(st.getValue());
+			}
+		}
+		System.out.println("---------------------------------------");
+		}
+		System.out.println();
+		
+	}
+	private static void adminSeeStudentDetail(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec,
+			StudentService stdService, Map<Integer, Student> students, Map<Integer, Courses> courses) {
+		int choice = 0;
+		try {
+			do {
+				System.out.println("------------------------------------");
+				System.out.println();
+				System.out.println("Press 1 View student details");
+				System.out.println("Press 2 view Student By Batch");
+				System.out.println("Press 3 View all Student List");
+				System.out.println("Press 0 to Back");
+				choice = sc.nextInt();
+
+				switch (choice) {
+				case 1:
+					studentDetailsByEmailId(sc,batches,batcServicec,stdService,students,courses);
+					break;
+				case 2:
+					stdService.SeeStudentBatchWise(sc,batches,batcServicec,stdService,students,courses);
+					break;
+				case 3:
+					stdService.SeeAllStudent(sc,batches,batcServicec,stdService,students,courses);
+					break;
+				case 0:
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + choice);
+				}
+
+			} while (choice!=0);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+		
+	}
+	private static void studentDetailsByEmailId(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec,
+			StudentService stdService, Map<Integer, Student> students, Map<Integer, Courses> courses) {
+		System.out.println("------------------------------------");
+		System.out.println();
+		System.out.println("Please Enter the Student Email id");
+		String sEmail=sc.next();
+		stdService.seeDetailOfStudent(sEmail,students,batches,courses);
+		
+	}
+	private static void adminUpdateBatchDetails(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec) {
+		int choice = 0;
+		try {
+			do {
+				System.out.println("------------------------------------");
+				System.out.println();
 				System.out.println("Press 1 Change Batch Name");
 				System.out.println("Press 2 Change Batch Strength");
 				System.out.println("Press 0 to Back");
@@ -324,6 +483,8 @@ public class Main {
 		
 	}
 	private static void adminChangeStrengthBatch(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec) {
+		System.out.println("------------------------------------");
+		System.out.println();
 		batcServicec.PrintAllBatches(batches);
 		System.out.println("Please Enter Id of the Batch");
 		int id = sc.nextInt();
@@ -339,11 +500,13 @@ public class Main {
 		if(cheak==true) {
 			System.out.println("Invalid Id");
 		}else {
-			System.out.println("Strength Updated Sucessfull");
+			System.out.println("Strength Updated Successfull");
 		}
 		
 	}
 	private static void adminChangeBatchByname(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec) {
+		System.out.println("------------------------------------");
+		System.out.println();
 		batcServicec.PrintAllBatches(batches);
 		System.out.println("Please Enter Id of the Batch");
 		int id = sc.nextInt();
@@ -359,14 +522,16 @@ public class Main {
 		if(cheak==true) {
 			System.out.println("Invalid Id");
 		}else {
-			System.out.println("Name Updated Sucessfull");
+			System.out.println("Name Updated Successfull");
 		}
 		
 	}
-	public static void adminSearchInfoBatch(Scanner sc, Map<Integer, Batch> batches, Map<Integer, Courses> courses) {
+	private static void adminSearchInfoBatch(Scanner sc, Map<Integer, Batch> batches, Map<Integer, Courses> courses) {
 		int choice = 0;
 		try {
 			do {
+				System.out.println("------------------------------------");
+				System.out.println();
 				System.out.println("Press 1 Search Batch by its Name");
 				System.out.println("Press 2 Search Batch by Course Name");
 				System.out.println("Press 3 Search Batch by Start Date");
@@ -401,7 +566,9 @@ public class Main {
 		
 		
 	}
-	public static void adminSearchBatchByDateRange(Scanner sc, Map<Integer, Batch> batches) {
+	private static void adminSearchBatchByDateRange(Scanner sc, Map<Integer, Batch> batches) {
+		System.out.println("------------------------------------");
+		System.out.println();
 		System.out.println("Please Enter the  Date After Batch Start");
 		String dateStart = sc.next();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -423,7 +590,9 @@ public class Main {
 		}
 		
 	}
-	public static void adminSearchBatchByStartDateRange(Scanner sc, Map<Integer, Batch> batches) {
+	private static void adminSearchBatchByStartDateRange(Scanner sc, Map<Integer, Batch> batches) {
+		System.out.println("------------------------------------");
+		System.out.println();
 		System.out.println("Please Enter the Date for Search batch");
 		String dateStart = sc.next();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -440,7 +609,9 @@ public class Main {
 		}
 		
 	}
-	public static void adminSearchBatchByCourse(Scanner sc, Map<Integer, Batch> batches, Map<Integer, Courses> courses) {
+	private static void adminSearchBatchByCourse(Scanner sc, Map<Integer, Batch> batches, Map<Integer, Courses> courses) {
+		System.out.println("------------------------------------");
+		System.out.println();
 		System.out.println("Please Enter the Course Name");
 		String nameSearched = sc.next();
 		int courseid = 0;
@@ -460,7 +631,9 @@ public class Main {
 		}
 		
 	}
-	public static void adminSearchBatchByname(Scanner sc, Map<Integer, Batch> batches) {
+	private static void adminSearchBatchByname(Scanner sc, Map<Integer, Batch> batches) {
+		System.out.println("------------------------------------");
+		System.out.println();
 		System.out.println("Please Enter the Batch Name");
 		String nameSearched = sc.next();
 		for(Map.Entry<Integer, Batch> mp:batches.entrySet()) {
@@ -470,7 +643,9 @@ public class Main {
 		}
 		
 	}
-	public static void adminUpdateCourseDetail(Scanner sc, Map<Integer, Courses> courses, CourseService courService) {
+	private static void adminUpdateCourseDetail(Scanner sc, Map<Integer, Courses> courses, CourseService courService) {
+		System.out.println("------------------------------------");
+		System.out.println();
 		
 		System.out.println("Please Enter the id of Course");
 		int idCourse = sc.nextInt();
@@ -509,11 +684,13 @@ public class Main {
 
 
 
-	public static void adminSearchInformationCourse(Scanner sc, Map<Integer, Courses> courses,
+	private static void adminSearchInformationCourse(Scanner sc, Map<Integer, Courses> courses,
 			CourseService courService) {
 		int choice = 0;
 		try {
 			do {
+				System.out.println("------------------------------------");
+				System.out.println();
 				System.out.println("Press 1 Search Course By name");
 				System.out.println("Press 2 Search Course By Duration Range");
 				System.out.println("Press 3 Search Course By Fee Range");
@@ -548,8 +725,10 @@ public class Main {
 		
 	}
 
-	public static void adminSerchByFeeCourse(Scanner sc, Map<Integer, Courses> courses) throws CourseException {
+	private static void adminSerchByFeeCourse(Scanner sc, Map<Integer, Courses> courses) throws CourseException {
 		// TODO Auto-generated method stub
+		System.out.println("------------------------------------");
+		System.out.println();
 		System.out.println("Please Enter the Minimium of Fee Range ");
 		int a=sc.nextInt();
 		System.out.println("Please Enter the Maximum of Fee Range ");
@@ -571,8 +750,10 @@ public class Main {
 		}
 	}
 
-	public static void adminSerchByDurationCourse(Scanner sc, Map<Integer, Courses> courses) throws CourseException {
+	private static void adminSerchByDurationCourse(Scanner sc, Map<Integer, Courses> courses) throws CourseException {
 		// TODO Auto-generated method stub
+		System.out.println("------------------------------------");
+		System.out.println();
 		System.out.println("Please Enter the Minimium(Months) of Duration Range ");
 		int a=sc.nextInt();
 		System.out.println("Please Enter the Maximum(Months) of Duration Range ");
@@ -596,8 +777,10 @@ public class Main {
 		
 	}
 
-	public static void adminSerchByNameCourse(Scanner sc, Map<Integer, Courses> courses, CourseService courService) throws CourseException {
+	private static void adminSerchByNameCourse(Scanner sc, Map<Integer, Courses> courses, CourseService courService) throws CourseException {
 		// TODO Auto-generated method stub
+		System.out.println("------------------------------------");
+		System.out.println();
 		System.out.println("Please Enter the name of course");
 		String name = sc.next();
 		boolean cheak=false;
@@ -618,14 +801,17 @@ public class Main {
 		
 	}
 
-	static void adminViewAllCourses(Map<Integer, Courses> courses, CourseService courService) throws CourseException {
+	private static void adminViewAllCourses(Map<Integer, Courses> courses, CourseService courService) throws CourseException {
 		// TODO Auto-generated method stub
+		System.out.println("------------------------------------");
+		System.out.println();
 		courService.viewAllCourses(courses);
 		
 	}
 
-	public static String adminAddCourse(Scanner sc, Map<Integer,Courses> courses, CourseService courService) {
-
+	private static String adminAddCourse(Scanner sc, Map<Integer,Courses> courses, CourseService courService) {
+		System.out.println("------------------------------------");
+		System.out.println();
 		String str = null;
 		System.out.println("please enter the course details");
 		System.out.println("Enter the coures name");
@@ -639,8 +825,9 @@ public class Main {
 		return str;
 	}
 	
-	public static void adminLogin(Scanner sc) throws InvalidDetailsException  {
-
+	private static void adminLogin(Scanner sc) throws InvalidDetailsException  {
+		System.out.println("------------------------------------");
+		System.out.println();
 		System.out.println("Enter the user name");
 		String userName = sc.next();
 		System.out.println("Enter the password");
@@ -654,6 +841,8 @@ public class Main {
 	}
 	private static void studentForgotPassword(Scanner sc, Map<Integer, Courses> courses, Map<Integer, Batch> batches,
 			Map<Integer, Student> students) {
+		System.out.println("------------------------------------");
+		System.out.println();
 		System.out.println("Enter Your Email id");
 		String email = sc.next();
 		System.out.println("Enter Your Mobile Number");
@@ -666,7 +855,7 @@ public class Main {
 				System.out.println("Please Enter Your new Password");
 				String pass=sc.next();
 				mp.getValue().setPassword(pass);
-				System.out.println("Password Updated Sucessfully");
+				System.out.println("Password Updated Successfully");
 				}
 		}
 		if(flag==false) {
@@ -688,11 +877,11 @@ public class Main {
 		try {
 			int preference=0;
 			do {
-				System.out.println("Please enter your preference, " + " '1' --> Admin login "+" '2' --> Student SignUp "+" '3' --> Student Login "+" '4' --> Student Forgot Password "+" '0' --> Existed from the system");
+				System.out.println("Please enter your preference, " + " \n'1' --> Admin login "+" \n'2' --> Student SignUp "+" \n'3' --> Student Login "+" \n'4' --> Student Forgot Password "+" \n'0' --> Existed from the system");
 				preference=sc.nextInt();
 				switch (preference) {
 				case 1:
-					adminFunctionality(sc, courses,batches);
+					adminFunctionality(sc, courses,batches,students);
 					break;
 				case 2:
 					stdService.studentSignUpFunctionality(sc,courses,batches,students);
@@ -732,7 +921,6 @@ public class Main {
 				System.out.println("Serialized......................");
 			
 			} catch (Exception e) {
-				// TODO: handle exception
 				System.out.println(e.getMessage());
 			}
 		}	
