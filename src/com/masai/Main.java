@@ -6,11 +6,13 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 import com.masai.entities.Batch;
 import com.masai.entities.Courses;
+import com.masai.entities.Feedback;
 import com.masai.entities.Student;
 import com.masai.exception.CourseException;
 import com.masai.exception.InvalidDetailsException;
@@ -28,7 +30,7 @@ import com.masai.utility.IDGeneration;
 public class Main {
 
 	private static void studentLogInFunctionallity(Scanner sc, Map<Integer, Courses> courses,
-			Map<Integer, Batch> batches, Map<Integer, Student> students) throws InvalidDetailsException {
+			Map<Integer, Batch> batches, Map<Integer, Student> students, List<Feedback> listOfFeedback) throws InvalidDetailsException {
 		int loginedStudentid=studentSignIn(sc,students);
 		int choice = 0;
 		try {
@@ -39,6 +41,7 @@ public class Main {
 				System.out.println("Press 4 Available course List");
 				System.out.println("Press 5 Available All Batch List");
 				System.out.println("Press 6 Student Enroll for Batch Course");
+				System.out.println("Press 7 Give a valuable Feedback");
 				System.out.println("Press 0 to LogOut");
 				choice = sc.nextInt();
 
@@ -61,6 +64,9 @@ public class Main {
 				case 6:
 					studentEnrollForBatches(sc,loginedStudentid,batches,courses,students);
 					break;
+				case 7:
+					studentFeedbackBatches(sc,loginedStudentid,batches,courses,students,listOfFeedback);
+					break;
 				case 0:
 					//System.out.println("admin has successfully logout");
 					break;
@@ -71,6 +77,34 @@ public class Main {
 			} while (choice!=0);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
+		}
+		
+	}
+	private static void studentFeedbackBatches(Scanner sc, int loginedStudentid, Map<Integer, Batch> batches,
+			Map<Integer, Courses> courses, Map<Integer, Student> students, List<Feedback> listOfFeedback) {
+		sc.nextLine();
+		System.out.println("Please Type your Valuable feedback");
+		String fdb = sc.nextLine();
+		System.out.println("Please rate us from 1 to 10 where 1 is low rating");
+		int srating = sc.nextInt();
+		if(srating>0&&srating<=10) {
+			Feedback fdobj = new Feedback(fdb,srating);
+			fdobj.setStudentId(loginedStudentid);
+			
+			for(Map.Entry<Integer, Student> stt:students.entrySet()) {
+				if(stt.getValue().getId()==loginedStudentid) {
+					fdobj.setNameOfStudent(stt.getValue().getFirstName()+" "+stt.getValue().getLastName());
+					for(Map.Entry<Integer, Batch> btt:batches.entrySet()) {
+						if(stt.getValue().getBatchid()==btt.getValue().getId()) {
+							fdobj.setBatchOfStudent(btt.getValue().getName());
+						}
+					}
+				}
+			}
+			listOfFeedback.add(fdobj);
+			System.out.println("Your feedback Registered successfully--This is help us to improve our Services");
+		}else {
+			System.out.println("Rating is out of range");
 		}
 		
 	}
@@ -248,7 +282,7 @@ public class Main {
 		}
 		return loginStudentid;
 	}
-	private static void adminFunctionality(Scanner sc,Map<Integer,Courses> courses, Map<Integer, Batch> batches, Map<Integer, Student> students) throws InvalidDetailsException {
+	private static void adminFunctionality(Scanner sc,Map<Integer,Courses> courses, Map<Integer, Batch> batches, Map<Integer, Student> students, List<Feedback> listOfFeedback) throws InvalidDetailsException {
 		adminLogin(sc);
 		
 		CourseService courService = new CourseServiceImpl();
@@ -265,7 +299,7 @@ public class Main {
 				System.out.println("Press 6 Search for information about batches");
 				System.out.println("Press 7 Update details of batch");
 				System.out.println("Press 8 View students Batchwise and Individual");
-				System.out.println("Press 9 Consolited Report");
+				System.out.println("Press 9 Consolited Report and Feedback");
 				System.out.println("Press 0 to log out");
 				choice = sc.nextInt();
 
@@ -300,7 +334,7 @@ public class Main {
 					adminSeeStudentDetail(sc,batches,batcServicec,stdService,students,courses);
 					break;
 				case 9:
-					consolitedReports(sc,batches,batcServicec,stdService,students,courses);
+					consolitedReports(sc,batches,batcServicec,stdService,students,courses,listOfFeedback);
 					break;
 				case 0:
 					System.out.println("admin has successfully logout");
@@ -316,13 +350,14 @@ public class Main {
 	}
 
 	private static void consolitedReports(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec,
-			StudentService stdService, Map<Integer, Student> students, Map<Integer, Courses> courses) {
+			StudentService stdService, Map<Integer, Student> students, Map<Integer, Courses> courses, List<Feedback> listOfFeedback) {
 		int choice = 0;
 		try {
 			do {
 				System.out.println("Press 1 batch-wise Consolited Report the total students in every batch");
 				System.out.println("Press 2 Consolidate Report Course-wise Student List");
 				System.out.println("Press 3 Consolidate Report Total Batch in Course");
+				System.out.println("Press 4 View all Feedback from Students");
 				System.out.println("Press 0 to Back");
 				choice = sc.nextInt();
 
@@ -337,6 +372,9 @@ public class Main {
 				case 3:
 					consolitedReportBatchInCourse(sc,batches,batcServicec,stdService,students,courses);
 					break;
+				case 4:
+					viewAllFeedbackToAdmin(sc,batches,batcServicec,stdService,students,courses,listOfFeedback);
+					break;
 				case 0:
 					//System.out.println("admin has successfully logout");
 					break;
@@ -347,6 +385,21 @@ public class Main {
 			} while (choice!=0);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
+		}
+		
+	}
+	private static void viewAllFeedbackToAdmin(Scanner sc, Map<Integer, Batch> batches, BatchService batcServicec,
+			StudentService stdService, Map<Integer, Student> students, Map<Integer, Courses> courses,
+			List<Feedback> listOfFeedback) {
+		boolean flag=true;
+		for(Feedback fb:listOfFeedback) {
+			System.out.println("-----------------------------------");
+			System.out.println(fb);
+			System.out.println("-----------------------------------");
+			flag=false;
+		}
+		if(flag==true) {
+			System.out.println("There is no Feedback Available");
 		}
 		
 	}
@@ -869,6 +922,7 @@ public class Main {
 		Map<Integer,Courses> courses = FileExist.courseFile();
 		Map<Integer,Batch> batches = FileExist.batchFile();
 		Map<Integer,Student> students = FileExist.studentFile();
+		List<Feedback> listOfFeedback=FileExist.feedbackFile();
 		//System.out.println(courses);
 		StudentService stdService = new StudentServiceImpl();
 		Scanner sc = new Scanner(System.in);
@@ -881,13 +935,13 @@ public class Main {
 				preference=sc.nextInt();
 				switch (preference) {
 				case 1:
-					adminFunctionality(sc, courses,batches,students);
+					adminFunctionality(sc, courses,batches,students,listOfFeedback);
 					break;
 				case 2:
 					stdService.studentSignUpFunctionality(sc,courses,batches,students);
 					break;
 				case 3:
-					studentLogInFunctionallity(sc,courses,batches,students);
+					studentLogInFunctionallity(sc,courses,batches,students,listOfFeedback);
 					break;
 				case 4:
 					studentForgotPassword(sc,courses,batches,students);
@@ -918,6 +972,9 @@ public class Main {
 				
 				ObjectOutputStream anna = new ObjectOutputStream(new FileOutputStream("Students.ser"));
 				anna.writeObject(students);
+				
+				ObjectOutputStream fnna = new ObjectOutputStream(new FileOutputStream("Feedback.ser"));
+				fnna.writeObject(listOfFeedback);
 				System.out.println("Serialized......................");
 			
 			} catch (Exception e) {

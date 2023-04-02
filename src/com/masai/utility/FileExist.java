@@ -7,11 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.masai.entities.Batch;
 import com.masai.entities.Courses;
+import com.masai.entities.Feedback;
 import com.masai.entities.Student;
 
 public class FileExist {
@@ -73,6 +76,23 @@ public class FileExist {
 			oiis.writeObject(mFile);
 			return mFile;
 			
+		}
+	}
+
+
+	public static List<Feedback> feedbackFile() throws FileNotFoundException, IOException, ClassNotFoundException {
+		List<Feedback>  fFile = null;
+		File ff = new File("Feedback.ser");
+		if(ff.exists()) {
+			ObjectInputStream oisf = new ObjectInputStream(new FileInputStream(ff));
+			fFile = (List<Feedback>) oisf.readObject();
+			return fFile;
+		}else {
+			ff.createNewFile();
+			fFile = new ArrayList<Feedback>();
+			ObjectOutputStream oosf = new ObjectOutputStream(new FileOutputStream(ff));
+			oosf.writeObject(fFile);
+			return fFile;
 		}
 	}
 	}
