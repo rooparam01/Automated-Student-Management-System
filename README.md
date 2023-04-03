@@ -1,1 +1,3 @@
-# same-flock-4026
+# Student Management System
+Used Tech Stack
+*JAVA
