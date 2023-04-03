@@ -1,9 +1,18 @@
 # Student Management System
-##Powred By
+## Powred By
 ```bash
 -Java
 -Inheritance
 -Exception Handling
+```
+
+## Domain Description
+This System is for maintain the students and Courses and Batches. Student can register and enroll for a course and can see details of Batches and give feedback to the Admin about course and batch.
+
+## Roles
+```bash
+-Admin role
+-Student role
 ```
 
 ![Screenshot (429)](https://user-images.githubusercontent.com/111178057/229436430-6605801b-7cf9-4382-ba7e-edda70061f71.png)
