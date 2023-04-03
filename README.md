@@ -1,5 +1,10 @@
 # Student Management System
-
+##Powred By
+```bash
+-Java
+-Inheritance
+-Exception Handling
+```
 
 ![Screenshot (429)](https://user-images.githubusercontent.com/111178057/229436430-6605801b-7cf9-4382-ba7e-edda70061f71.png)
 ![Screenshot (430)](https://user-images.githubusercontent.com/111178057/229436436-7cca40ae-68bc-4703-9b60-67f466785f05.png)
