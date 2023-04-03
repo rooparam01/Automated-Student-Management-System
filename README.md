@@ -7,12 +7,51 @@
 ```
 
 ## Domain Description
+```bash
 This System is for maintain the students and Courses and Batches. Student can register and enroll for a course and can see details of Batches and give feedback to the Admin about course and batch.
+```
 
 ## Roles
 ```bash
 -Admin role
 -Student role
+```
+
+## Admin Functionality
+```bash
+-Add the course
+-view all courses
+-Search info about course
+-Update course
+-Create new batch
+-Serch info about batch
+-Update details of batch
+-View student batch wise and individual
+-Consolidated reports and feedback
+-LogOut
+```
+
+## Student Functionality
+```bash
+*Sign Up*
+*Student Forgot Password*
+*Login*
+-Update personal details
+-View Student detail
+-Change Password
+-See Available course list 
+-See Available Batch list
+-Enroll for Batch
+-Give a feedback
+-LogOut
+```
+
+## How to Run
+```bash
+To run this application, you will need to have JDK.
+-Clone this repository to your local system.
+-Open terminal or command prompt
+-Run the main.java
 ```
 
 ![Screenshot (429)](https://user-images.githubusercontent.com/111178057/229436430-6605801b-7cf9-4382-ba7e-edda70061f71.png)
