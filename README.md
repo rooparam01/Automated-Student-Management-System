@@ -1,4 +1,4 @@
-# Student Management System
+# Automated Student Management System
 ## Powred By
 ```bash
 -Java
