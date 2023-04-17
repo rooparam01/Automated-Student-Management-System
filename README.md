@@ -55,6 +55,10 @@ To run this application, you will need to have JDK.
 -Open terminal or command prompt
 -Run the main.java
 ```
+## Video Presentation
+
+[Video presentation](https://drive.google.com/file/d/1FhCoXO_EyQQGAPlvUJumwCmL3fdeguog/view?usp=sharing)
+
 ## Console presentation
 ### Home Screen
 ![Screenshot (429)](https://user-images.githubusercontent.com/111178057/229436430-6605801b-7cf9-4382-ba7e-edda70061f71.png)
