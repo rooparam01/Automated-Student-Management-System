@@ -1,4 +1,4 @@
-<img src="https://github.com/rooparam01/Automated-Student-Management-System/assets/111178057/150f7598-2038-4069-a857-793e2ceda21f" height=100px>
+<img src="https://github.com/rooparam01/Automated-Student-Management-System/assets/111178057/150f7598-2038-4069-a857-793e2ceda21f" height=150px>
 
 # Automated Student Management System
 ## Powred By
